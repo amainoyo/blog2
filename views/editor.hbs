@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#if post}}编辑文章{{else}}写文章{{/if}} · Oyang的博客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    {{> header}}
+
+    <main class="main-content">
+        <div class="editor-page">
+            <h1>{{#if post}}编辑文章{{else}}写文章{{/if}}</h1>
+
+            {{#if error}}
+            <div class="alert alert-error">{{error}}</div>
+            {{/if}}
+
+            <form method="POST" action="{{#if post}}/posts/{{post.id}}{{else}}/posts{{/if}}" class="editor-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">标题</label>
+                    <input type="text" id="title" name="title" value="{{post.title}}" required placeholder="输入文章标题">
+                </div>
+                <div class="form-group">
+                    <label for="content">内容 · Markdown</label>
+                    <textarea id="content" name="content" required placeholder="用 Markdown 编写你的文章...">{{post.content}}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="image">上传图片 / GIF</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="status">状态</label>
+                    <select id="status" name="status">
+                        <option value="published" {{#if post}}{{#if (eq post.status "published")}}selected{{/if}}{{else}}selected{{/if}}>发布</option>
+                        <option value="draft" {{#if (eq post.status "draft")}}selected{{/if}}>草稿</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category">分类</label>
+                    <select id="category" name="category">
+                        <option value="uncategorized" {{#if post}}{{#unless (eq post.category "tech")}}{{#unless (eq post.category "life")}}{{#unless (eq post.category "thoughts")}}{{#unless (eq post.category "essays")}}selected{{/unless}}{{/unless}}{{/unless}}{{/unless}}{{else}}selected{{/if}}>未分类</option>
+                        {{#each categories}}
+                        <option value="{{slug}}" {{#if (eq ../post.category slug)}}selected{{/if}}>{{name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tags">标签 · 逗号分隔</label>
+                    <input type="text" id="tags" name="tags" value="{{tagsString}}" placeholder="如：Node.js, Railway, 部署">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><span id="submitBtnText">发布</span></button>
+                    <a href="/" class="btn">取消</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    {{> footer}}
+    <script>
+    (function() {
+        const statusSelect = document.getElementById('status');
+        const btnText = document.getElementById('submitBtnText');
+        if (!statusSelect || !btnText) return;
+        function updateBtnText() {
+            btnText.textContent = statusSelect.value === 'draft' ? '保存' : '发布';
+        }
+        statusSelect.addEventListener('change', updateBtnText);
+        updateBtnText();
+    })();
+    </script>
+</body>
+</html>

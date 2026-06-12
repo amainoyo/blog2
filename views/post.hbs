@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{post.title}} 路 Oyang鐨勫崥瀹�</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    {{> header}}
+
+    <main class="main-content">
+        <article class="post-detail">
+            <a href="{{backUrl}}" class="post-back">鈫� {{backLabel}}</a>
+            <header class="post-header">
+                {{#if post.category}}
+                <div class="post-taxonomy">
+                    <a href="/?category={{post.category}}" class="category-badge">
+                        {{#each categories}}{{#if (eq ../post.category slug)}}{{name}}{{/if}}{{/each}}{{#if (eq post.category "uncategorized")}}鏈垎绫粄{/if}}
+                    </a>
+                    {{#if post.tags.length}}
+                    <div class="post-tags">
+                        {{#each post.tags}}
+                        <a href="/tag/{{slug}}" class="tag-pill">{{name}}</a>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+                </div>
+                {{/if}}
+                <h1 class="post-title">{{post.title}}</h1>
+                <div class="post-meta">
+                    <span class="date">{{formatDate post.created_at}}</span>
+                    <span>By {{post.author_username}}</span>
+                    <span>{{post.view_count}} 闃呰</span>
+                </div>
+                {{#if (or (eq post.author_id user.id) (eq user.role "admin"))}}
+                <div class="post-actions">
+                    <a href="/editor/{{post.id}}" class="btn">缂栬緫</a>
+                    <form action="/posts/{{post.id}}/delete" method="POST" class="delete-form" style="display:inline;" onsubmit="return confirm('纭畾鍒犻櫎杩欑瘒鍗氭枃鍚楋紵')">
+                        <button type="submit" class="btn btn-danger">鍒犻櫎</button>
+                    </form>
+                </div>
+                {{/if}}
+            </header>
+            <div class="post-content">{{{post.html}}}</div>
+        </article>
+
+        <section class="comments-section">
+            <h2>璇勮 路 {{comments.length}}</h2>
+            {{#if user}}
+            <form method="POST" action="/posts/{{post.id}}/comments" class="comment-form">
+                <input type="hidden" name="slug" value="{{post.slug}}">
+                <textarea name="content" placeholder="鍐欎笅浣犵殑璇勮..." required></textarea>
+                <button type="submit" class="btn btn-primary">鎻愪氦璇勮</button>
+            </form>
+            {{else}}
+            <p class="login-prompt"><a href="/login">鐧诲綍</a>鍚庡彲鍙戣〃璇勮</p>
+            {{/if}}
+
+            <div class="comment-list">
+                {{#each comments}}
+                <div class="comment" id="comment-{{id}}">
+                    <div class="comment-header">
+                        <span class="comment-author">{{author_username}}</span>
+                        <span class="comment-date">{{formatDate created_at}}</span>
+                        {{#if (or (eq author_id ../user.id) (eq ../user.role "admin"))}}
+                        <div class="comment-actions">
+                            <button type="button" class="btn-link" onclick="showEditForm('{{id}}')">缂栬緫</button>
+                            <form action="/comments/{{id}}/delete" method="POST" class="comment-delete-form" style="display:inline;" onsubmit="return confirm('纭畾鍒犻櫎杩欐潯璇勮鍚楋紵')">
+                                <button type="submit" class="btn-link">鍒犻櫎</button>
+                            </form>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div class="comment-content" id="comment-content-{{id}}">{{{safeHtml}}}</div>
+                    <form action="/comments/{{id}}/update" method="POST" class="comment-edit-form" id="edit-form-{{id}}" style="display:none;">
+                        <textarea name="content" class="edit-textarea">{{content}}</textarea>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">淇濆瓨</button>
+                            <button type="button" class="btn" onclick="hideEditForm('{{id}}')">鍙栨秷</button>
+                        </div>
+                    </form>
+                </div>
+                {{/each}}
+            </div>
+        </section>
+    </main>
+
+    {{> footer}}
+    <button class="scroll-top" id="scrollTopBtn" aria-label="鍥炲埌椤堕儴">鈭�</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+    if (window.hljs) hljs.highlightAll();
+    function showEditForm(commentId) {
+        document.getElementById('comment-content-' + commentId).style.display = 'none';
+        document.getElementById('edit-form-' + commentId).style.display = 'block';
+    }
+    function hideEditForm(commentId) {
+        document.getElementById('comment-content-' + commentId).style.display = 'block';
+        document.getElementById('edit-form-' + commentId).style.display = 'none';
+    }
+    (function() {
+        const btn = document.getElementById('scrollTopBtn');
+        if (!btn) return;
+        window.addEventListener('scroll', () => {
+            btn.classList.toggle('visible', window.scrollY > 300);
+        }, { passive: true });
+        btn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    })();
+    </script>
+</body>
+</html>

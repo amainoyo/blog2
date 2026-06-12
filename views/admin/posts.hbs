@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章管理 · Oyang的博客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    {{> header}}
+
+    <main class="main-content">
+        <div class="admin-page">
+            <h1>{{pageTitle}}</h1>
+            <a href="{{backUrl}}" class="btn" style="margin-bottom:1.5rem;">{{backText}}</a>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>标题</th>
+                        <th>作者</th>
+                        <th>状态</th>
+                        <th>阅读</th>
+                        <th>发布时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each posts}}
+                    <tr>
+                        <td>{{id}}</td>
+                        <td><a href="/post/{{slug}}">{{title}}</a></td>
+                        <td>{{author_username}}</td>
+                        <td>{{status}}</td>
+                        <td>{{view_count}}</td>
+                        <td>{{formatDate created_at}}</td>
+                        <td>
+                            <form method="POST" action="/admin/posts/{{id}}/delete" class="delete-form" style="display:inline;" onsubmit="return confirm('确定删除该文章？')">
+                                <button type="submit" class="btn btn-danger">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    {{> footer}}
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 · Oyang的博客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    {{> header}}
+
+    <main class="main-content">
+        <div class="admin-page">
+            <h1>用户管理</h1>
+            <a href="/admin" class="btn" style="margin-bottom:1.5rem;">返回后台</a>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>邮箱</th>
+                        <th>角色</th>
+                        <th>注册时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each users}}
+                    <tr>
+                        <td>{{id}}</td>
+                        <td>{{username}}</td>
+                        <td>{{email}}</td>
+                        <td>
+                            <form method="POST" action="/admin/users/{{id}}/role" class="role-form" style="display:inline;">
+                                <select name="role" onchange="this.form.submit()">
+                                    <option value="user" {{#if (eq role "user")}}selected{{/if}}>普通用户</option>
+                                    <option value="vip" {{#if (eq role "vip")}}selected{{/if}}>VIP</option>
+                                    <option value="admin" {{#if (eq role "admin")}}selected{{/if}}>管理员</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>{{formatDate created_at}}</td>
+                        <td>
+                            {{#if (eq id ../user.id)}}
+                            <span class="text-muted">当前用户</span>
+                            {{else}}
+                            <form method="POST" action="/admin/users/{{id}}/delete" class="delete-form" style="display:inline;" onsubmit="return confirm('确定删除该用户？')">
+                                <button type="submit" class="btn btn-danger">删除</button>
+                            </form>
+                            {{/if}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    {{> footer}}
+</body>
+</html>

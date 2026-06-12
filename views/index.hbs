@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oyang的博客 · 思想之书</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    {{> header}}
+
+    <main class="main-content">
+        <header class="masthead">
+            <h1 class="masthead-title">Oyang的博客</h1>
+            <p class="masthead-subtitle">记录 · 思考 · 分享</p>
+            <p class="masthead-meta">EST. 2026 · 个人杂志</p>
+        </header>
+
+        {{#if categories}}
+        <nav class="category-bar">
+            <a href="/" class="category-tab {{#if (and (not activeCategory) (not activeTag))}}active{{/if}}">全部</a>
+            {{#each categories}}
+            <a href="/?category={{slug}}" class="category-tab {{#if (eq ../activeCategory slug)}}active{{/if}}">{{name}}</a>
+            {{/each}}
+        </nav>
+        {{/if}}
+
+        <section class="posts-section">
+            <h2 class="section-title">
+                <span>
+                    {{#if activeCategory}}
+                        {{#each categories}}{{#if (eq ../activeCategory slug)}}{{name}}{{/if}}{{/each}} · 分类
+                    {{else if activeTag}}
+                        标签「{{tagName}}」
+                    {{else if searchQuery}}
+                        搜索「{{searchQuery}}」
+                    {{else}}
+                        最新文章
+                    {{/if}}
+                </span>
+                <span class="post-count">共 {{total}} 篇</span>
+            </h2>
+            {{#if posts.length}}
+                <div class="posts-grid">
+                    {{#each posts}}
+                    <article class="post-card">
+                        <a href="/post/{{slug}}" class="post-link">
+                            <h3 class="post-title">{{title}}</h3>
+                            <p class="post-excerpt">{{excerpt}}</p>
+                            {{#if tags.length}}
+                            <div class="post-tags">
+                                {{#each tags}}
+                                <a href="/tag/{{slug}}" class="tag-pill">{{name}}</a>
+                                {{/each}}
+                            </div>
+                            {{/if}}
+                            <div class="post-meta">
+                                <span class="date">{{formatDate created_at}}</span>
+                                <span>By {{author_username}}</span>
+                                <span>{{view_count}} 阅读</span>
+                            </div>
+                        </a>
+                    </article>
+                    {{/each}}
+                </div>
+
+                {{#if pagination}}
+                <nav class="pagination">
+                    {{#if pagination.hasPrev}}
+                        <a href="?page={{sub pagination.page 1}}{{#if activeCategory}}&category={{activeCategory}}{{/if}}{{#if searchQuery}}&q={{searchQuery}}{{/if}}" class="btn page-prev">← 上一页</a>
+                    {{/if}}
+
+                    {{#if pageList}}
+                    <div class="page-numbers">
+                        {{#each pageList}}
+                            {{#if this}}
+                                {{#if (eq this ../pagination.page)}}
+                                <span class="page-current">{{this}}</span>
+                                {{else}}
+                                <a href="?page={{this}}{{#if ../activeCategory}}&category={{../activeCategory}}{{/if}}{{#if ../searchQuery}}&q={{../searchQuery}}{{/if}}" class="page-num">{{this}}</a>
+                                {{/if}}
+                            {{else}}
+                                <span class="page-ellipsis">…</span>
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                    {{/if}}
+
+                    {{#if pagination.hasNext}}
+                        <a href="?page={{add pagination.page 1}}{{#if activeCategory}}&category={{activeCategory}}{{/if}}{{#if searchQuery}}&q={{searchQuery}}{{/if}}" class="btn page-next">下一页 →</a>
+                    {{/if}}
+
+                    {{#if (gt pagination.totalPages 7)}}
+                    <form class="page-jump" method="GET" action="">
+                        {{#if activeCategory}}<input type="hidden" name="category" value="{{activeCategory}}">{{/if}}
+                        {{#if searchQuery}}<input type="hidden" name="q" value="{{searchQuery}}">{{/if}}
+                        <input type="number" name="page" min="1" max="{{pagination.totalPages}}" placeholder="页码" aria-label="跳转到页码" required />
+                        <button type="submit" class="btn">GO</button>
+                    </form>
+                    {{/if}}
+                </nav>
+                {{/if}}
+            {{else}}
+                <div class="empty-state">
+                    <p>此处尚无篇章</p>
+                    {{#if user}}
+                        <a href="/editor" class="btn btn-primary">立即书写</a>
+                    {{else}}
+                        <a href="/register" class="btn btn-primary">开始写作</a>
+                    {{/if}}
+                </div>
+            {{/if}}
+        </section>
+    </main>
+
+    {{> footer}}
+</body>
+</html>

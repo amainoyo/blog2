@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>批量导入 · Oyang的博客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    {{> header}}
+
+    <main class="main-content">
+        <div class="admin-page">
+            <h1>批量导入 Markdown</h1>
+            <a href="/admin" class="btn" style="margin-bottom:1.5rem;">返回后台</a>
+
+            {{#if error}}
+            <div class="alert alert-error">{{error}}</div>
+            {{/if}}
+
+            {{#unless results}}
+            <div class="import-form-wrap">
+                <p class="subtitle">— 一次发布多篇文章 —</p>
+                <p class="import-hint">
+                    支持 YAML frontmatter：
+                    <code>title</code> · <code>category</code> · <code>tags</code> · <code>status</code>
+                </p>
+
+                <form method="POST" action="/admin/import" enctype="multipart/form-data" class="import-form">
+                    <div class="form-group">
+                        <label for="files">选择 .md 文件（可多选）</label>
+                        <input type="file" id="files" name="files" multiple accept=".md,text/markdown" required>
+                        <small class="form-hint">单文件 ≤ 5MB · 每次 ≤ 20 个</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">开始导入</button>
+                    </div>
+                </form>
+
+                <details class="import-example">
+                    <summary>查看 frontmatter 示例</summary>
+                    <pre>---
+title: 我的文章标题
+category: tech        # tech / life / thoughts / essays，留空归到「未分类」
+tags: Node.js, Railway, 部署
+status: published     # published / draft
+---
+
+# 正文
+
+这里是文章正文，支持 Markdown 语法。</pre>
+                </details>
+            </div>
+            {{/unless}}
+
+            {{#if results}}
+            <div class="import-results">
+                <p class="import-summary">
+                    导入完成：<strong class="count-ok">{{successCount}}</strong> 成功 ·
+                    <strong class="count-fail">{{failCount}}</strong> 失败 ·
+                    共 <strong>{{totalCount}}</strong> 个文件
+                </p>
+
+                <table class="admin-table import-table">
+                    <thead>
+                        <tr>
+                            <th>文件名</th>
+                            <th>状态</th>
+                            <th>标题 / 错误</th>
+                            <th>分类</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each results}}
+                        <tr>
+                            <td><code>{{name}}</code></td>
+                            <td>
+                                {{#if ok}}
+                                <span class="status-badge status-ok">✓ 成功</span>
+                                {{else}}
+                                <span class="status-badge status-fail">✗ 失败</span>
+                                {{/if}}
+                            </td>
+                            <td>
+                                {{#if ok}}
+                                <a href="/post/{{slug}}" target="_blank">{{title}}</a>
+                                {{else}}
+                                <span class="error-msg">{{error}}</span>
+                                {{/if}}
+                            </td>
+                            <td>
+                                {{#if ok}}
+                                    {{#if (eq category "uncategorized")}}未分类{{else}}
+                                    {{#each ../categories}}{{#if (eq ../category slug)}}{{name}}{{/if}}{{/each}}
+                                    {{/if}}
+                                {{/if}}
+                            </td>
+                            <td>
+                                {{#if ok}}
+                                <a href="/editor/{{id}}" class="btn-link">编辑</a>
+                                {{/if}}
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+
+                <div class="import-actions">
+                    <a href="/admin/import" class="btn btn-primary">继续导入</a>
+                    <a href="/admin/posts" class="btn">查看文章列表</a>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    </main>
+
+    {{> footer}}
+</body>
+</html>
